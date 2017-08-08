@@ -1,0 +1,76 @@
+# Set the Python interpreter path to use
+ansible_python_interpreter: /usr/local/bin/python
+
+# Use local connection for making all calls
+connection: local
+ansible_connection: local
+
+# Ansible root path
+ansible_root_path: "{{ lookup('env','HOME') }}/Ansible"
+
+# Subnet configuration
+ipv4_1_1_ip_net: 172.16.163
+ipv4_1_2_ip_net: 172.16.222
+ipv4_1_3_ip_net: 192.168.0
+
+# Product path
+products_path: "{{ansible_root_path}}/Products/"
+
+# VM path
+virtual_machine_path: "{{ansible_root_path}}/VirtualMachines.localized"
+
+# Repository Folder
+repository_folder               : "{{ansible_root_path}}/Repository"
+
+# ISAM ISO file
+isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
+
+# ISAM fixpack file
+isam_fixpack: "SAM/9030_IF2.fixpack"
+
+#ISAM WGA Activation code file name
+wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
+
+#ISAM Advanced Access Activation code file name
+aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
+
+# Default LMI port for appliances
+lmi_port: 443
+
+# Logging set to maximum, output will not show until -vvv flag is used
+log_level: DEBUG
+
+# Idempotent functions are the default - no need to force any calls
+force: False
+
+# Default username to use for all roles/tasks (password inside host_vars)
+username: "admin@local"
+
+# Time to wait in seconds if appliance is being rebooted
+start_config_wait_time: 300
+
+appl_hostnames:
+ - addr: "{{ipv4_1_1_ip_net}}.103"
+   hostnames:
+    - {name: isam.mmfa.ibm.com}
+ - addr: "{{ipv4_1_1_ip_net}}.104"
+   hostnames:
+    - {name: www.mmfa.ibm.com} 
+ - addr: "{{ipv4_1_3_ip_net}}.150"
+   hostnames:
+    - {name: mobile.mmfa.ibm.com} 
+ - addr: "{{ipv4_1_2_ip_net}}.103"
+   hostnames:
+    - {name: aac.mmfa.ibm.com}
+
+enable_fips: True
+change_admin_password: True
+
+# ISAM Policy Server super-user
+sec_master_id: "sec_master"
+sec_master_pwd: "{{vault_sec_master_pwd}}"
+appl_pwd: "{{vault_appl_pwd}}"
+ldap_user: "cn=root,secAuthority=default"
+ldap_pwd: "{{vault_ldap_pwd}}"
+isam_domain: "Default"
+

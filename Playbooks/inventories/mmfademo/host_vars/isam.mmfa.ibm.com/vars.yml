@@ -1,0 +1,322 @@
+appliance_name                        : "isam.mmfa.ibm.com"
+webseal_web_host_name                 : "www.mmfa.ibm.com"
+webseal_mobile_web_host_name          : "mobile.mmfa.ibm.com"
+mmfa_mobile_endpoint_host_name        : "192.168.0.150"
+aac_web_host_name                     : "aac.mmfa.ibm.com"
+
+password                              : "{{vault_password}}"
+
+ipv4_1_1_ip_address                   : "{{ipv4_1_1_ip_net}}.103"
+ipv4_1_1_ip_mask                      : 24
+
+ipv4_1_1_ip_aliases                   :
+                                        - "{{ipv4_1_1_ip_net}}.104"
+                                        - "{{ipv4_1_1_ip_net}}.105"
+
+ipv4_1_2_ip_address                   : "{{ipv4_1_2_ip_net}}.103"
+ipv4_1_2_ip_mask                      : 24
+
+ipv4_1_3_ip_address                   : "{{ipv4_1_3_ip_net}}.150"
+ipv4_1_3_ip_mask                      : 24
+
+appliance_FIPS_cfg                    : { fipsEnabled: true, tlsv10Enabled: false, tlsv11Enabled: true }
+
+policyserver_ssl_compliance           : "fips"
+
+webseal_inst_name                     : "default"
+webseal_inst_port                     : 7234
+webseal_inst_ssl_yn                   : "no"
+webseal_inst_http_yn                  : "no"
+webseal_inst_http_port                : "80"
+webseal_inst_https_yn                 : "yes"
+webseal_inst_https_port               : "443"
+webseal_nw_interface_yn               : "yes"
+webseal_inst_ip                       : "{{ipv4_1_1_ip_net}}.104"
+
+webseal_mobile_inst_name              : "mobile"
+webseal_mobile_inst_port              : 7235
+webseal_mobile_inst_ssl_yn            : "no"
+webseal_mobile_inst_http_yn           : "no"
+webseal_mobile_inst_http_port         : "80"
+webseal_mobile_inst_https_yn          : "yes"
+webseal_mobile_inst_https_port        : "443"
+webseal_mobile_nw_interface_yn        : "yes"
+webseal_mobile_inst_ip                : "{{ipv4_1_3_ip_net}}.150"
+
+cert_filename                         : "certs/{{webseal_web_host_name}}.p12"
+mobile_cert_filename                  : "certs/{{webseal_mobile_web_host_name}}.p12"
+
+webseal_web_inst_conf_entries         :
+                                        - { stanza_id: "server" , entry_id:  "web-host-name" , value_id:  "{{webseal_web_host_name}}" }
+                                        - { stanza_id: "server" , entry_id:  "force-tag-value-prefix" , value_id:  "no" }
+                                        - { stanza_id: "server" , entry_id:  "http-method-disabled-remote" , value_id:  "TRACE,CONNECT" }
+                                        - { stanza_id: "session" , entry_id:  "user-session-ids" , value_id:  "yes" }
+                                        - { stanza_id: "junction:/mga" , entry_id:  "reset-cookies-list" , value_id:  "*ac.uuid,*JSESSIONID*" }
+                                        - { stanza_id: "junction:/mga" , entry_id:  "managed-cookies-list" , value_id:  "*ac.uuid,*JSESSIONID*" }
+                                        - { stanza_id: "ssl" , entry_id:  "webseal-cert-keyfile-label" , value_id:  "{{webseal_web_host_name}}" }
+                                        - { stanza_id: "eai" , entry_id:  "eai-auth" , value_id:  "https" }
+                                        - { stanza_id: "eai" , entry_id:  "retain-eai-session" , value_id:  "yes" }
+                                        - { stanza_id: "eai" , entry_id:  "eai-redir-url-priority" , value_id:  "yes" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept" , value_id:  "header:Accept" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept-Charset" , value_id:  "header:Accept-Charset" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept-Encoding" , value_id:  "header:Accept-Encoding" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept-Language" , value_id:  "header:Accept-Language" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Authorization" , value_id:  "header:Authorization" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Cache-Control" , value_id:  "header:Cache-Control" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Connection" , value_id:  "header:Connection" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Content-Type" , value_id:  "header:Content-Type" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Host" , value_id:  "header:Host" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_HOST_HDR" , value_id:  "header:host" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_REQUEST_SCHEME" , value_id:  "scheme" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_REQUEST_METHOD" , value_id:  "method" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_REQUEST_URI" , value_id:  "uri" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_AZN_HDR" , value_id:  "header:authorization" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_CONTENT_TYPE_HDR" , value_id:  "header:content-type" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_TRANSFER_ENCODING_HDR" , value_id:  "header:transfer-encoding" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Missing" , value_id:  "header:Missing" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Pragma" , value_id:  "header:Pragma" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Transfer-Encoding" , value_id:  "header:Transfer-Encoding" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "User-Agent" , value_id:  "header:User-Agent" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "X-Requested-With" , value_id:  "header:X-Requested-With" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "method" , value_id:  "method" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "rspcode" , value_id:  "header:rspcode" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "scheme" , value_id:  "scheme" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "uri" , value_id:  "uri" }
+                                        - { stanza_id: "obligations-urls-mapping" , entry_id:  "urn:ibm:security:authentication:asf:*" , value_id:  "/mga/sps/authsvc" }
+                                        - { stanza_id: "websocket" , entry_id:  "max-worker-threads" , value_id:  "20" }
+                                        - { stanza_id: "websocket" , entry_id:  "jct-read-inactive-timeout" , value_id:  "300" }
+                                        - { stanza_id: "websocket" , entry_id:  "clt-read-inactive-timeout" , value_id:  "300" }
+                                        - { stanza_id: "websocket" , entry_id:  "jct-write-blocked-timeout" , value_id:  "300" }
+                                        - { stanza_id: "websocket" , entry_id:  "clt-write-blocked-timeout" , value_id:  "300" }
+                                        - { stanza_id: "script-filtering" , entry_id:  "script-filter" , value_id:  "yes" }
+                                        - { stanza_id: "script-filtering" , entry_id:  "rewrite-absolute-with-absolute" , value_id:  "yes" }
+                                        - { stanza_id: "eai-trigger-urls" , entry_id:  "trigger" , value_id:  "/mga/sps/oauth/oauth20/session*" }
+                                        - { stanza_id: "filter-content-types" , entry_id:  "type" , value_id:  "application/scim+json" }
+                                        - { stanza_id: "server" , entry_id:  "follow-redirects-for" , value_id:  "GET /mga/sps/apiauthsvc*" }
+
+webseal_mobile_inst_conf_entries      :
+                                        - { stanza_id: "server" , entry_id:  "web-host-name" , value_id:  "{{webseal_mobile_web_host_name}}" }
+                                        - { stanza_id: "server" , entry_id:  "force-tag-value-prefix" , value_id:  "no" }
+                                        - { stanza_id: "ssl" , entry_id:  "webseal-cert-keyfile-label" , value_id:  "{{webseal_mobile_web_host_name}}" }
+                                        - { stanza_id: "server" , entry_id:  "http-method-disabled-remote" , value_id:  "TRACE,CONNECT" }
+                                        - { stanza_id: "server" , entry_id:  "maximum-followed-redirects" , value_id:  "4" }
+                                        - { stanza_id: "eai" , entry_id:  "eai-auth" , value_id:  "https" }
+                                        - { stanza_id: "eai" , entry_id:  "retain-eai-session" , value_id:  "yes" }
+                                        - { stanza_id: "eai" , entry_id:  "eai-redir-url-priority" , value_id:  "yes" }
+                                        - { stanza_id: "session" , entry_id:  "user-session-ids" , value_id:  "yes" }
+                                        - { stanza_id: "forms" , entry_id:  "forms-auth" , value_id:  "none" }
+                                        - { stanza_id: "oauth" , entry_id:  "oauth-auth" , value_id:  "https" }
+                                        - { stanza_id: "oauth" , entry_id:  "default-fed-id" , value_id:  "https://localhost/sps/oauth/oauth20" }
+                                        - { stanza_id: "tfim-cluster:oauth-cluster" , entry_id:  "basic-auth-user" , value_id:  "easuser" }
+                                        - { stanza_id: "tfim-cluster:oauth-cluster" , entry_id:  "server" , value_id:  "9,https://{{aac_web_host_name}}/TrustServerWS/SecurityTokenServiceWST13" }
+                                        - { stanza_id: "tfim-cluster:oauth-cluster" , entry_id:  "basic-auth-passwd" , value_id:  "Passw0rd" }
+                                        - { stanza_id: "tfim-cluster:oauth-cluster" , entry_id:  "ssl-keyfile" , value_id:  "pdsrv.kdb" }
+                                        - { stanza_id: "tfim-cluster:oauth-cluster" , entry_id:  "ssl-keyfile-stash" , value_id:  "pdsrv.sth" }
+                                        - { stanza_id: "session" , entry_id:  "require-mpa" , value_id:  "no" }
+                                        - { stanza_id: "session-http-headers" , entry_id:  "Authorization" , value_id:  "https" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept" , value_id:  "header:Accept" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept-Charset" , value_id:  "header:Accept-Charset" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept-Encoding" , value_id:  "header:Accept-Encoding" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Accept-Language" , value_id:  "header:Accept-Language" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Authorization" , value_id:  "header:Authorization" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Cache-Control" , value_id:  "header:Cache-Control" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Connection" , value_id:  "header:Connection" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Content-Type" , value_id:  "header:Content-Type" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Host" , value_id:  "header:Host" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_HOST_HDR" , value_id:  "header:host" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_REQUEST_SCHEME" , value_id:  "scheme" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_REQUEST_METHOD" , value_id:  "method" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_REQUEST_URI" , value_id:  "uri" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_AZN_HDR" , value_id:  "header:authorization" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_CONTENT_TYPE_HDR" , value_id:  "header:content-type" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "HTTP_TRANSFER_ENCODING_HDR" , value_id:  "header:transfer-encoding" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Missing" , value_id:  "header:Missing" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Pragma" , value_id:  "header:Pragma" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "Transfer-Encoding" , value_id:  "header:Transfer-Encoding" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "User-Agent" , value_id:  "header:User-Agent" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "X-Requested-With" , value_id:  "header:X-Requested-With" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "method" , value_id:  "method" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "rspcode" , value_id:  "header:rspcode" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "scheme" , value_id:  "scheme" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "uri" , value_id:  "uri" }
+                                        - { stanza_id: "obligations-urls-mapping" , entry_id:  "urn:ibm:security:authentication:asf:*" , value_id:  "/mga/sps/authsvc" }
+                                        - { stanza_id: "websocket" , entry_id:  "max-worker-threads" , value_id:  "20" }
+                                        - { stanza_id: "websocket" , entry_id:  "jct-read-inactive-timeout" , value_id:  "300" }
+                                        - { stanza_id: "websocket" , entry_id:  "clt-read-inactive-timeout" , value_id:  "300" }
+                                        - { stanza_id: "websocket" , entry_id:  "jct-write-blocked-timeout" , value_id:  "300" }
+                                        - { stanza_id: "websocket" , entry_id:  "clt-write-blocked-timeout" , value_id:  "300" }
+                                        - { stanza_id: "script-filtering" , entry_id:  "script-filter" , value_id:  "yes" }
+                                        - { stanza_id: "script-filtering" , entry_id:  "rewrite-absolute-with-absolute" , value_id:  "yes" }
+                                        - { stanza_id: "mmfa-config-info" , entry_id:  "mmfa" , value_id:  "mobile" }
+                                        - { stanza_id: "mmfa-config-info:mobile" , entry_id:  "junction" , value_id:  "/mga" }
+                                        - { stanza_id: "junction:/mga" , entry_id:  "reset-cookies-list" , value_id:  "*ac.uuid,*JSESSIONID*" }
+                                        - { stanza_id: "junction:/mga" , entry_id:  "managed-cookies-list" , value_id:  "*ac.uuid,*JSESSIONID*" }                                        
+                                        - { stanza_id: "eai-trigger-urls" , entry_id:  "trigger" , value_id:  "/mga/sps/oauth/oauth20/session*" }
+                                        - { stanza_id: "filter-content-types" , entry_id:  "type" , value_id:  "application/scim+json" }
+                                        - { stanza_id: "server" , entry_id:  "follow-redirects-for" , value_id:  "GET /mga/sps/apiauthsvc*" }
+
+pdadmin_security_mmfa                 :
+                                        - "object modify /WebSEAL/{{ appliance_name }}-{{ webseal_mobile_inst_name }}/mga set attribute HTTP-Tag-Value user_session_id=user_session_id" 
+                                        - "acl create temp-unauth"
+                                        - "acl modify temp-unauth set group iv-admin TcmdbsvaBRrxl"
+                                        - "acl modify temp-unauth set group webseal-servers Tgmdbsrxl"
+                                        - "acl modify temp-unauth set user sec_master TcmdbsvaBRrxl"
+                                        - "acl modify temp-unauth set any-other Tr"
+                                        - "acl modify temp-unauth set unauthenticated Tr"
+                                        - "acl create isam_mobile_anyauth"
+                                        - "acl modify isam_mobile_anyauth set group iv-admin TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_anyauth set group webseal-servers Tgmdbsrxl"
+                                        - "acl modify isam_mobile_anyauth set user sec_master TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_anyauth set any-other Tr"
+                                        - "acl modify isam_mobile_anyauth set unauthenticated T"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/auth isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/xauth isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/oauth/oauth20/clients isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/common/qr isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mga/user/mgmt/html isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mmfa/user/mgmt/html isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/ac isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/wssoi isam_mobile_anyauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/oauth/oauth20/logout isam_mobile_anyauth"
+                                        - "acl create isam_mobile_unauth"
+                                        - "acl modify isam_mobile_unauth set group iv-admin TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_unauth set group webseal-servers Tgmdbsrxl"
+                                        - "acl modify isam_mobile_unauth set user sec_master TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_unauth set any-other Tr"
+                                        - "acl modify isam_mobile_unauth set unauthenticated Tr"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/authsvc isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/authservice/authentication isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/oauth/oauth20/authorize isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/oauth/oauth20/session isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/oauth/oauth20/token isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/static isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mmfa/user/mgmt/details isam_mobile_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/oauth/oauth20/token isam_mobile_unauth"
+                                        - "acl create isam_mobile_nobody"
+                                        - "acl modify isam_mobile_nobody set group iv-admin TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_nobody set group webseal-servers Tgmdbsrxl"
+                                        - "acl modify isam_mobile_nobody set user sec_master TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_nobody set any-other T"
+                                        - "acl modify isam_mobile_nobody set unauthenticated T"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga isam_mobile_nobody"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga isam_mobile_nobody"
+                                        - "acl create isam_mobile_rest"
+                                        - "acl modify isam_mobile_rest set group iv-admin TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_rest set group webseal-servers Tgmdbsrxl"
+                                        - "acl modify isam_mobile_rest set user sec_master TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_rest set any-other Tmdr"
+                                        - "acl modify isam_mobile_rest set unauthenticated T"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mga/user/mgmt/otp isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mga/user/mgmt/device isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mga/user/mgmt/questions isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mga/user/mgmt/grant isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mmfa/user/mgmt/authenticators isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mmfa/user/mgmt/auth_methods isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mmfa/user/mgmt/qr_code isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/mmfa/user/mgmt/transactions isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/websock/mmfa-wss isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mga/user/mgmt/otp isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mga/user/mgmt/device isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mga/user/mgmt/questions isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mga/user/mgmt/grant isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mmfa/user/mgmt/authenticators isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mmfa/user/mgmt/auth_methods isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mmfa/user/mgmt/qr_code isam_mobile_rest"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/mmfa/user/mgmt/transactions isam_mobile_rest"
+                                        - "acl create isam_mobile_rest_unauth"
+                                        - "acl modify isam_mobile_rest_unauth set group iv-admin TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_rest_unauth set group webseal-servers Tgmdbsrxl"
+                                        - "acl modify isam_mobile_rest_unauth set user sec_master TcmdbsvaBRrxl"
+                                        - "acl modify isam_mobile_rest_unauth set any-other Tmdrxl"
+                                        - "acl modify isam_mobile_rest_unauth set unauthenticated Tmdrxl"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/mga/sps/apiauthsvc isam_mobile_rest_unauth"
+                                        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/mga/sps/apiauthsvc isam_mobile_rest_unauth"
+
+ldap_connection_config                 : '{"hostName":"{{appliance_name}}","hostPort":636,"bindDN":"{{ldap_connection_bind_DN}}","ssl":"true","sslTruststore":"embedded_ldap_keys.kdb","sslAuthKey":"","bindPwd":"{{ldap_pwd}}"}'
+ldap_connection_bind_DN                : "cn=root,secAuthority=Default"
+
+mmfa_endpoints                         :
+  details_url                          : "https://{{mmfa_mobile_endpoint_host_name}}/mga/sps/mmfa/user/mgmt/details"
+  enrollment_endpoint                  : "https://{{mmfa_mobile_endpoint_host_name}}/scim/Me"
+  hotp_shared_secret_endpoint          : "https://{{mmfa_mobile_endpoint_host_name}}/mga/sps/mga/user/mgmt/otp/hotp"
+  totp_shared_secret_endpoint          : "https://{{mmfa_mobile_endpoint_host_name}}/mga/sps/mga/user/mgmt/otp/totp"
+  token_endpoint                       : "https://{{mmfa_mobile_endpoint_host_name}}/mga/sps/oauth/oauth20/token"
+  mobile_endpoint_prefix               : "https://{{mmfa_mobile_endpoint_host_name}}/mga"
+  authntrxn_endpoint                   : "https://{{mmfa_mobile_endpoint_host_name}}/scim/Me?attributes=urn:ietf:params:scim:schemas:extension:isam:1.0:MMFA:Transaction:transactionsPending,urn:ietf:params:scim:schemas:extension:isam:1.0:MMFA:Transaction:attributesPending"
+  
+mmfa_discovery_mechanisms              :
+                                        - "urn:ibm:security:authentication:asf:mechanism:mobile_user_approval:fingerprint"
+                                        - "urn:ibm:security:authentication:asf:mechanism:mobile_user_approval:user_presence"
+                                        - "urn:ibm:security:authentication:asf:mechanism:totp"
+
+mmfa_initiate_login_policy_file        : "policies/MMFA_Initiate_Login_Policy.xml"
+mmfa_user_response_policy_file         : "policies/MMFA_User_Presence_Response.xml"
+mmfa_transfer_initiate_policy_file     : "policies/MMFA_Transfer_Initiate_Policy.xml"
+mmfa_transfer_response_policy_file     : "policies/MMFA_Transfer_Response_Policy.xml"
+cba_transfer_initiate_policy_file      : "policies/CBA_Transfer_Initiate_Policy.xml"
+
+anonymous_password                     : "{{ vault_ws_anonymous_password }}"
+
+demo_app_webseal_hostname              : www.mmfa.ibm.com
+demo_app_config                        : "acHostAndPort=localhost%3A443&lmiHostAndPort={{appliance_name}}%3A443&lmiAdminId=admin&lmiAdminPwd={{appl_pwd}}&websealHostNameAndPort={{demo_app_webseal_hostname}}%3A443&acUuidCookieName=ac.uuid"
+
+oauth_client_clientId                  : "AuthenticatorClient"                   
+
+metadata_path                          : "C/mmfa/user/mgmt/mmfa/metadata/{{oauth_client_clientId}}"
+metadata_name                          : "metadata.json"
+metadata_filename                      : "aac_templates/metadata.json"
+template_zip_filename                  : "aac_templates/template_files.zip"
+
+webseal_inst_conf_entries_rbac         :
+                                        - { stanza_id: "aznapi-configuration" , entry_id:  "special-eas" , value_id:  "trigger_rba_eas" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "ac.uuid" , value_id:  "cookie:ac.uuid" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:subject:ipAddress" , value_id:  "client_ip" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:trusteer:header:rapport-extra" , value_id:  "header:x-trusteer-rapport-extra" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:trusteer:header:rapport" , value_id:  "header:x-trusteer-rapport" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:trusteer:pinpoint:csid" , value_id:  "cookie:PD-S-SESSION-ID" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:adapter:adapter" , value_id:  "post-data:adapter" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:adapter:parameters" , value_id:  "post-data:parameters" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:adapter:procedure" , value_id:  "post-data:procedure" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:device:id" , value_id:  "header:x-wl-device-id" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:version:app" , value_id:  "header:x-wl-app-version" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:version:native" , value_id:  "header:x-wl-native-version" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:security:worklight:version:platform" , value_id:  "header:x-wl-platform-version" }
+                                        - { stanza_id: "azn-decision-info" , entry_id:  "urn:ibm:demo:transferamount" , value_id:  "post-data:transaction-amount" }
+                                        - { stanza_id: "rtss-eas" , entry_id:  "context-id" , value_id:  "context-inherited-pop" }
+                                        - { stanza_id: "rtss-cluster:cluster1" , entry_id:  "basic-auth-user" , value_id:  "easuser" }
+                                        - { stanza_id: "rtss-cluster:cluster1" , entry_id:  "basic-auth-passwd" , value_id:  "{{ vault_easuser_password }}" }
+                                        - { stanza_id: "rtss-cluster:cluster1" , entry_id:  "server" , value_id:  "9,https://{{aac_web_host_name}}/rtss/authz/services/AuthzService" }
+                                        - { stanza_id: "rtss-cluster:cluster1" , entry_id:  "ssl-keyfile" , value_id:  "pdsrv.kdb" }
+                                        - { stanza_id: "rtss-cluster:cluster1" , entry_id:  "ssl-keyfile-stash" , value_id:  "pdsrv.sth" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:trusteer:header:rapport-extra.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:trusteer:header:rapport-extra.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:trusteer:header:rapport.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:trusteer:header:rapport.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:trusteer:pinpoint:csid.category" , value_id:  "Subject" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:trusteer:pinpoint:csid.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:adapter:adapter.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:adapter:adapter.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:adapter:parameters.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:adapter:parameters.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:adapter:procedure.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:adapter:procedure.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:device:id.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:device:id.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:version:app.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:version:app.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:version:native.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:version:native.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:version:platform.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:security:worklight:version:platform.datatype" , value_id:  "string" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:demo:transferamount.category" , value_id:  "Environment" }
+                                        - { stanza_id: "user-attribute-definitions" , entry_id:  "urn:ibm:demo:transferamount.datatype" , value_id:  "double" }
+                                       
+
+stepup_rule_name                        : "BuildMMFAStepupLoginPrompt"
+amount_rule_name                        : "DemoTransferAmount"
+assert_rule_name                        : "MMFAAssertUsernameFromRequest"
+rememberme_rule_name                    : "RememberMeUsername"
+setauthlvl_rule_name                    : "SetAuthenticationLevel"
+verifystepup_rule_name                  : "VerifyStepupViaCBA"
+  
+transfer_access_control_policy_name     : "MMFA Transfer Transaction Policy"

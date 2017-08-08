@@ -1,0 +1,8 @@
+[melbourne-mmfa]
+isam.mmfa.ibm.com
+
+[melbourne:children]
+melbourne-mmfa
+
+[mmfa:children]
+melbourne-mmfa

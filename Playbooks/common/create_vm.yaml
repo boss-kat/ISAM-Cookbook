@@ -1,0 +1,34 @@
+---
+# Build out VMWare Fusion VM
+
+- name: Create VMWare Fusion VM
+  hosts: all
+  connection: local
+  roles:
+    - role: bootstrap_local
+      BS_vm_hostname                              : "{{ inventory_hostname }}"
+      BS_vm_mgmt_ip                               : "{{ ipv4_1_1_ip_address }}"
+      BS_vm_cpu_count                             : "{{ vm_cpu_count }}"
+      BS_vm_ram_size                              : "{{ vm_ram_size }}"
+      BS_vm_hdd_size                              : "{{ vm_hdd_size }}"
+      BS_vm_nic_count                             : "{{ vm_nic_count }}"
+      BS_vm_netmask                               : "{{ vm_netmask }}"
+      BS_vm_default_gw                            : "{{ vm_default_gw }}"
+      BS_vm_path_root                             : "{{ virtual_machine_path }}"
+      BS_appliance_iso                            : "{{ products_path }}{{ isam_iso }}"
+      BS_vm_ethernet0_present                     : "{{ vm_ethernet0_present }}"
+      BS_vm_ethernet0_connectionType              : "{{ vm_ethernet0_connectionType }}"
+      BS_vm_ethernet0_vnet                        : "{{ vm_ethernet0_vnet }}"
+      BS_vm_ethernet0_bsdName                     : "{{ vm_ethernet0_bsdName }}"
+      BS_vm_ethernet0_displayName                 : "{{ vm_ethernet0_displayName }}"
+      BS_vm_ethernet1_present                     : "{{ vm_ethernet1_present }}"
+      BS_vm_ethernet1_connectionType              : "{{ vm_ethernet1_connectionType }}"
+      BS_vm_ethernet1_vnet                        : "{{ vm_ethernet1_vnet }}"
+      BS_vm_ethernet1_bsdName                     : "{{ vm_ethernet1_bsdName }}"
+      BS_vm_ethernet1_displayName                 : "{{ vm_ethernet1_displayName }}"
+      BS_vm_ethernet2_present                     : "{{ vm_ethernet2_present }}"
+      BS_vm_ethernet2_connectionType              : "{{ vm_ethernet2_connectionType }}"
+      BS_vm_ethernet2_vnet                        : "{{ vm_ethernet2_vnet }}"
+      BS_vm_ethernet2_bsdName                     : "{{ vm_ethernet2_bsdName }}"
+      BS_vm_ethernet2_displayName                 : "{{ vm_ethernet2_displayName }}"
+      BS_baseline_snapshot                        : "{{ vm_baseline_snapshot }}"

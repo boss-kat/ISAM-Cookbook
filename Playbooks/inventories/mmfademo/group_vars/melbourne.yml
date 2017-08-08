@@ -1,0 +1,11 @@
+# Standard settings for DNS - using OpenDNS
+dns_primaryServer     : 172.16.163.2
+dns_secondaryServer   : null
+dns_tertiaryServer    : null
+dns_auto              : False
+dns_autoFromInterface : null
+dns_searchDomains     : "ibm.com"
+
+# Standard settings for NTP - timezone set to Eastern Time
+ntp_servers: "pool.ntp.org"
+timeZone: "Australia/Melbourne"

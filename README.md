@@ -25,66 +25,66 @@ If you have a Docker environment you may also download the isam-ansible docker i
 
 This demo environment is using three (3) NICs. One NAT interface for LMI with subnet 172.16.163.0, one NAT interface for AAC runtime with subnet 172.16.222.0 and one bridged interface for the external access with 192.168.0.0. You will need configure three NICs on your virtual environment and update subnet configuration accodring to your subnet IPs. For virtual network configuration details please refer to attached mmfa_network_config.pdf file.
 
-## Get Started on MAC OS with VMWare Fusion.
+# Get Started on MAC OS with VMWare Fusion.
 ### 1. Install xcode from AppStore
 
 ### 2. Install Xcode command line tools
 xcode-select --install
 
-###3. Install ansible
+### 3. Install ansible
 brew install ansible
 
-4. Install pre-requisites
+### 4. Install pre-requisites
 pip install requests
 pip install importlib
 pip install PyYAML
 
-5. Create Ansible folder in user's home directory
+### 5. Create Ansible folder in user's home directory
 mkdir ~/Ansible
-In case you need to put the project into different folder on MAC, it is required update the following parameter in the playbook:
+In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
 ansible_root_path: "/tmp/Ansible"
 
-5. Download and unzip ibmsecurity from GITHUB
+### 6. Download and unzip ibmsecurity from GITHUB
 cd ~/Ansible
 curl -L https://github.com/IBM-Security/ibmsecurity/archive/master.zip | tar xz
 
-6. Install ibmsecurity python package
+### 7. Install ibmsecurity python package
 cd ~/Ansible/ibmsecurity-master
 python setup.py install
 
-8. Install ansible roles
+### 8. Install ansible roles
 ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible
 
-9. Download and extract MMFA Cookbook ansible project to a temp folder.
+### 9. Download and extract MMFA Cookbook ansible project to a temp folder.
 cd /tmp
 curl -L https://github.com/boss-kat/ISAM-Cookbook/archive/master.zip | tar xz
 
-10. Move the project to ~/Ansible 
+### 10. Move the project to ~/Ansible 
 cd /tmp/ISAM-Cookbook-master
 mv * ~/Ansible
 
-11. Update Ansible/ansible.cfg only if Ansible project was NOT installed into user's home directory
+### 11. Update Ansible/ansible.cfg only if Ansible project was NOT installed into user's home directory
 [defaults]
-# If Ansible folder is NOT under user's home directory specify full path to role_path folder
+#If Ansible folder is NOT under user's home directory specify full path to role_path folder
 roles_path				= ~/Ansible/isam-ansible-roles
 #roles_path				= /opt/IBM/Ansible/isam-ansible-roles
-# If Ansible folder is NOT under user's home directory specify full path to retry_files_save_path folder
+#If Ansible folder is NOT under user's home directory specify full path to retry_files_save_path folder
 retry_files_save_path 	= ~/Ansible/Playbooks/retry
 #retry_files_save_path 	= /opt/IBM/Ansible/Playbooks/retry
 
-12. Configure ansible root path in <environment>/group_vars/all/vars.yml only if Ansible root folder not in the user's home directory
-# Ansible root path
-# If Ansible folder is NOT under user's home directory specify full path to Ansible folder
+### 12. Configure ansible root path in <environment>/group_vars/all/vars.yml only if Ansible root folder not in the user's home directory
+#Ansible root path
+#If Ansible folder is NOT under user's home directory specify full path to Ansible folder
 #ansible_root_path: "/opt/IBM/Ansible/"
 ansible_root_path: "{{ lookup('env','HOME') }}/Ansible"
 
-13. Update network subnet with actual subnect IPs in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
-# Subnet configuration
+### 13. Update network subnet with actual subnect IPs in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
+#Subnet configuration
 ipv4_1_1_ip_net: 172.16.163
 ipv4_1_2_ip_net: 172.16.222
 ipv4_1_3_ip_net: 192.168.0
 
-14. Update host entries configuration according to your network config in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
+### 14. Update host entries configuration according to your network config in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
 appl_hostnames:
  - addr: "{{ipv4_1_1_ip_net}}.103"
    hostnames:
@@ -99,7 +99,7 @@ appl_hostnames:
    hostnames:
     - {name: aac.mmfa.ibm.com}
 
-15. Update /etc/hosts file on the MAC host with demo host IPs
+### 15. Update /etc/hosts file on the MAC host with demo host IPs
 sudo vi /etc/hosts
 #MMFA Demo Hosts
 172.16.163.103  isam.mmfa.ibm.com
@@ -107,10 +107,10 @@ sudo vi /etc/hosts
 192.168.0.150   mobile.mmfa.ibm.com
 172.16.222.103  aac.mmfa.ibm.com
 
-16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml config:
-# ISAM ISO file
+### 16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml config:
+#ISAM ISO file
 isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
-# ISAM fixpack file
+#ISAM fixpack file
 isam_fixpack: "SAM/9030_IF2.fixpack"
 #ISAM WGA Activation code file name
 wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
@@ -120,7 +120,7 @@ aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
 #isam_fixpack: "SAM/9030_IF2.fixpack"
 
-14. Run the playbook with the following command:
+### 17. Run the playbook with the following command:
 cd ~/Ansible
 ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 

@@ -35,14 +35,20 @@ This demo environment is using three (3) NICs. One NAT interface for LMI with su
 `brew install ansible`
 
 ### 4. Install pre-requisites
-`pip install requests`
-`pip install importlib`
-`pip install PyYAML`
+```
+pip install requests
+pip install importlib
+pip install PyYAML
+```
 
 ### 5. Create Ansible folder in user's home directory
-`mkdir ~/Ansible`
+```
+mkdir ~/Ansible
+```
 In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
-`ansible_root_path: "/opt/IBM/Ansible"`
+```
+ansible_root_path: "/opt/IBM/Ansible"
+```
 
 ### 6. Download and unzip ibmsecurity from GITHUB
 ```
@@ -247,7 +253,9 @@ appl_hostnames:
 ```
 
 ### 15. Update /etc/hosts file on the RedHat host with demo host IPs
-`sudo vi /etc/hosts
+```
+sudo vi /etc/hosts
+```
 ```
 #MMFA Demo Hosts
 172.16.163.103  isam.mmfa.ibm.com
@@ -269,15 +277,20 @@ aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 ```
 
 NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
-`#isam_fixpack: "SAM/9030_IF2.fixpack"`
+```
+#isam_fixpack: "SAM/9030_IF2.fixpack"
+```
 
 ### 17. Disable automatic VM creation in the /~/Ansible/ISAM-Cookbook/Playbooks/mmfademo.yml file
-`#- include: common/create_vm.yaml`
+```
+#- include: common/create_vm.yaml
+```
 
 ### 18. Run the playbook with the following command:
-`cd ~/Ansible`
-`ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml`
-
+```
+cd ~/Ansible
+ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
+```
 
 # MMFA Demo access and scenarios
 

@@ -29,7 +29,7 @@ This demo environment is using three (3) NICs. One NAT interface for LMI with su
 ### 1. Install xcode from AppStore
 
 ### 2. Install Xcode command line tools
-'xcode-select --install'
+`xcode-select --install`
 
 ### 3. Install ansible
 `brew install ansible`
@@ -40,31 +40,39 @@ This demo environment is using three (3) NICs. One NAT interface for LMI with su
 `pip install PyYAML`
 
 ### 5. Create Ansible folder in user's home directory
-mkdir ~/Ansible
+`mkdir ~/Ansible`
 In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
-
-ansible_root_path: "/opt/IBM/Ansible"
+`ansible_root_path: "/opt/IBM/Ansible"`
 
 ### 6. Download and unzip ibmsecurity from GITHUB
+```
 cd ~/Ansible
 curl -L https://github.com/IBM-Security/ibmsecurity/archive/master.zip | tar xz
+```
 
 ### 7. Install ibmsecurity python package
+```
 cd ~/Ansible/ibmsecurity-master
 python setup.py install
+```
 
 ### 8. Install ansible roles
-ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible
+`ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible`
 
 ### 9. Download and extract MMFA Cookbook ansible project to a temp folder.
+```
 cd /tmp
 curl -L https://github.com/boss-kat/ISAM-Cookbook/archive/master.zip | tar xz
+```
 
 ### 10. Move the project to ~/Ansible 
+```
 cd /tmp/ISAM-Cookbook-master
 mv * ~/Ansible
+```
 
-### 11. Update Ansible/ansible.cfg only if Ansible project was NOT installed into user's home directory
+### 11. Update ~Ansible/ansible.cfg only if Ansible project was NOT installed into user's home directory
+```
 [defaults]
 #If Ansible folder is NOT under user's home directory specify full path to role_path folder
 roles_path				= ~/Ansible/isam-ansible-roles
@@ -72,20 +80,26 @@ roles_path				= ~/Ansible/isam-ansible-roles
 #If Ansible folder is NOT under user's home directory specify full path to retry_files_save_path folder
 retry_files_save_path 	= ~/Ansible/Playbooks/retry
 #retry_files_save_path 	= /opt/IBM/Ansible/Playbooks/retry
+```
 
-### 12. Configure ansible root path in <environment>/group_vars/all/vars.yml only if Ansible root folder not in the user's home directory
+### 12. Configure ansible root path in `~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml` only if Ansible root folder not in the user's home directory
+```
 #Ansible root path
 #If Ansible folder is NOT under user's home directory specify full path to Ansible folder
 #ansible_root_path: "/opt/IBM/Ansible/"
 ansible_root_path: "{{ lookup('env','HOME') }}/Ansible"
+```
 
-### 13. Update network subnet with actual subnect IPs in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
+### 13. Update network subnet with actual subnect IPs in `~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml`
+```
 #Subnet configuration
 ipv4_1_1_ip_net: 172.16.163
 ipv4_1_2_ip_net: 172.16.222
 ipv4_1_3_ip_net: 192.168.0
+```
 
-### 14. Update host entries configuration according to your network config in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
+### 14. Update host entries configuration according to your network config in `~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml`
+```
 appl_hostnames:
  - addr: "{{ipv4_1_1_ip_net}}.103"
    hostnames:
@@ -99,9 +113,10 @@ appl_hostnames:
  - addr: "{{ipv4_1_2_ip_net}}.103"
    hostnames:
     - {name: aac.mmfa.ibm.com}
+```
 
 ### 15. Update /etc/hosts file on the MAC host with demo host IPs
-sudo vi /etc/hosts
+`sudo vi /etc/hosts`
 ```
 #MMFA Demo Hosts
 172.16.163.103  isam.mmfa.ibm.com
@@ -110,23 +125,26 @@ sudo vi /etc/hosts
 172.16.222.103  aac.mmfa.ibm.com
 ```
 
-### 16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml config:
-`#ISAM ISO file`
-`isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"`
-`#ISAM fixpack file`
+### 16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the `~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml` config:
+```
+#ISAM ISO file
+isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
+#ISAM fixpack file
 isam_fixpack: "SAM/9030_IF2.fixpack"
 #ISAM WGA Activation code file name
 wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
 #ISAM Advanced Access Activation code file name
 aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
+```
 
 NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
-#isam_fixpack: "SAM/9030_IF2.fixpack"
+`#isam_fixpack: "SAM/9030_IF2.fixpack"`
 
 ### 17. Run the playbook with the following command:
+```
 cd ~/Ansible
 ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
-
+```
 
 
 # Get Started on RedHat 7.3.
@@ -248,12 +266,12 @@ ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 # MMFA Demo access and scenarios
 
 ### 1. Access the MMFA Device configuration page 
-https://www.mmfa.ibm.com/mga/sps/mmfa/user/mgmt/html/mmfa/usc/manage.html
+`https://www.mmfa.ibm.com/mga/sps/mmfa/user/mgmt/html/mmfa/usc/manage.html`
 
 At this page you can add your iOS or Android smartphone as a mobile device. You can also use U2F keys with this demo. 
 
 ### 2. Access context based authorization page 
-https://www.mmfa.ibm.com/app/mobile-demo/payload/
+`https://www.mmfa.ibm.com/app/mobile-demo/payload/`
 
 The transfer amount less than 1000$ does not require mobile approval. 1000$+ amounts requires mobile approval.
 

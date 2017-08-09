@@ -29,10 +29,14 @@ This demo environment is using three (3) NICs. One NAT interface for LMI with su
 ### 1. Install xcode from AppStore
 
 ### 2. Install Xcode command line tools
-`xcode-select --install`
+```
+xcode-select --install
+```
 
 ### 3. Install ansible
-`brew install ansible`
+```
+brew install ansible
+```
 
 ### 4. Install pre-requisites
 ```
@@ -122,8 +126,9 @@ appl_hostnames:
 ```
 
 ### 15. Update /etc/hosts file on the MAC host with demo host IPs
-`sudo vi /etc/hosts`
 ```
+sudo vi /etc/hosts
+
 #MMFA Demo Hosts
 172.16.163.103  isam.mmfa.ibm.com
 172.16.163.104  www.mmfa.ibm.com
@@ -144,7 +149,9 @@ aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 ```
 
 NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
-`#isam_fixpack: "SAM/9030_IF2.fixpack"`
+```
+#isam_fixpack: "SAM/9030_IF2.fixpack"
+```
 
 ### 17. Run the playbook with the following command:
 ```
@@ -169,17 +176,23 @@ chown ansible ansible
 Ansible is not available in the default RHEL repositories, so we need to install Extra Packages for Enterprise Linux (EPEL) in order to install it via yum. 
 
 Download epel-release-latest-7.noarch.rpm
-`curl -L https://archive.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -o epel-release-latest-7.noarch.rpm`
+```
+curl -L https://archive.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -o epel-release-latest-7.noarch.rpm
+```
 
 Install epel-release-latest-7.noarch.rpm
-`rpm -ivh epel-release-latest-7.noarch.rpm`
+```
+rpm -ivh epel-release-latest-7.noarch.rpm
+```
 
 ### 3. Update RedHat
 `yum update`
 
 ### 4. Install Ansible and python-jmespath
-`yum install ansible`
-`yum install python-jmespath`
+```
+yum install ansible
+yum install python-jmespath
+```
 
 ### 5. Create Ansible project folder
 ```
@@ -187,26 +200,38 @@ su - ansible
 mkdir Ansible
 ```
 In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
+```
 ansible_root_path: "/opt/IBM/Ansible"
+```
 
 ### 6. Download and unzip ibmsecurity from GITHUB
-`cd ~/Ansible`
-`curl -L https://github.com/IBM-Security/ibmsecurity/archive/master.zip | tar xz`
+```
+cd ~/Ansible
+curl -L https://github.com/IBM-Security/ibmsecurity/archive/master.zip | tar xz
+```
 
 ### 7. Install ibmsecurity python package
-`cd ~/Ansible/ibmsecurity-master`
-`python setup.py install`
+```
+cd ~/Ansible/ibmsecurity-master
+python setup.py install
+```
 
 ### 8. Install ansible roles
-`ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible`
+```
+ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible
+```
 
 ### 9. Download and extract MMFA Cookbook ansible project to a temp folder.
-`cd /tmp`
-`curl -L https://github.com/boss-kat/ISAM-Cookbook/archive/master.zip | tar xz`
+```
+cd /tmp
+curl -L https://github.com/boss-kat/ISAM-Cookbook/archive/master.zip | tar xz
+```
 
 ### 10. Move the project to ~/Ansible 
-`cd /tmp/ISAM-Cookbook-master`
-`mv * ~/Ansible`
+```
+cd /tmp/ISAM-Cookbook-master
+mv * ~/Ansible
+```
 
 ### 11. Update Ansible/ansible.cfg only if Ansible project was NOT installed into user's home directory
 ```
@@ -255,8 +280,7 @@ appl_hostnames:
 ### 15. Update /etc/hosts file on the RedHat host with demo host IPs
 ```
 sudo vi /etc/hosts
-```
-```
+
 #MMFA Demo Hosts
 172.16.163.103  isam.mmfa.ibm.com
 172.16.163.104  www.mmfa.ibm.com
@@ -295,12 +319,16 @@ ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 # MMFA Demo access and scenarios
 
 ### 1. Access the MMFA Device configuration page 
-`https://www.mmfa.ibm.com/mga/sps/mmfa/user/mgmt/html/mmfa/usc/manage.html`
+```
+https://www.mmfa.ibm.com/mga/sps/mmfa/user/mgmt/html/mmfa/usc/manage.html
+```
 
 At this page you can add your iOS or Android smartphone as a mobile device. You can also use U2F keys with this demo. 
 
 ### 2. Access context based authorization page 
-`https://www.mmfa.ibm.com/app/mobile-demo/payload/`
+```
+https://www.mmfa.ibm.com/app/mobile-demo/payload/
+```
 
 The transfer amount less than 1000$ does not require mobile approval. 1000$+ amounts requires mobile approval.
 

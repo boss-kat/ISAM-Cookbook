@@ -234,7 +234,10 @@ aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
 #isam_fixpack: "SAM/9030_IF2.fixpack"
 
-### 17. Run the playbook with the following command:
+### 17. Disable automatic VM creation in the /~/Ansible/ISAM-Cookbook/Playbooks/mmfademo.yml file
+#- include: common/create_vm.yaml
+
+### 18. Run the playbook with the following command:
 cd ~/Ansible
 ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 

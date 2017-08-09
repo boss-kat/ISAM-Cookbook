@@ -1,6 +1,6 @@
 # IBM Sample Code
 
-This repository contains a sample Playbook for builing ISAM MMFA Cookbook environment. 
+This repository contains a sample Playbook for builing ISAM MMFA Cookbook environment. The playbook was tested with ISAM v9.0.2.1 and ISAM v9.0.3 software.
 
 For ISAM MMFA Cookbook details please refer to https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/IBM%20Security%20Federated%20Identity%20Manager/page/IBM%20Verify%20Cookbook . 
 
@@ -19,7 +19,7 @@ ISAM Roles need to be installed and available.
 The playbook is able to create ISAM appliance on the VMWare Fusion platform. For other platforms it is required that appliance will have an ip address defined for their LMI. This may mean that appliances have had their initial setup 
 done with license acceptance.
 
-To eliminate appliance creation at the playbook running please comment the "- include: common/create_vm.yaml" line in the mmfademo.yml file.
+To eliminate appliance VM creation at the playbook running please comment the "- include: common/create_vm.yaml" line in the mmfademo.yml file.
 
 If you have a Docker environment you may also download the isam-ansible docker image which takes care of all the pre-requisites, details please refer to  https://hub.docker.com/r/mludocker/isam-ansible/ .
 
@@ -107,6 +107,18 @@ sudo vi /etc/hosts
 192.168.0.150   mobile.mmfa.ibm.com
 172.16.222.103  aac.mmfa.ibm.com
 
+16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml config:
+# ISAM ISO file
+isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
+# ISAM fixpack file
+isam_fixpack: "SAM/9030_IF2.fixpack"
+#ISAM WGA Activation code file name
+wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
+#ISAM Advanced Access Activation code file name
+aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
+
+NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
+#isam_fixpack: "SAM/9030_IF2.fixpack"
 
 14. Run the playbook with the following commands:
 cd ~/Ansible

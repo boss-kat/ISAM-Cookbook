@@ -29,15 +29,15 @@ This demo environment is using three (3) NICs. One NAT interface for LMI with su
 ### 1. Install xcode from AppStore
 
 ### 2. Install Xcode command line tools
-xcode-select --install
+'xcode-select --install'
 
 ### 3. Install ansible
-brew install ansible
+`brew install ansible`
 
 ### 4. Install pre-requisites
-pip install requests
-pip install importlib
-pip install PyYAML
+`pip install requests`
+`pip install importlib`
+`pip install PyYAML`
 
 ### 5. Create Ansible folder in user's home directory
 mkdir ~/Ansible
@@ -102,16 +102,18 @@ appl_hostnames:
 
 ### 15. Update /etc/hosts file on the MAC host with demo host IPs
 sudo vi /etc/hosts
+```
 #MMFA Demo Hosts
 172.16.163.103  isam.mmfa.ibm.com
 172.16.163.104  www.mmfa.ibm.com
 192.168.0.150   mobile.mmfa.ibm.com
 172.16.222.103  aac.mmfa.ibm.com
+```
 
 ### 16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml config:
-#ISAM ISO file
-isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
-#ISAM fixpack file
+`#ISAM ISO file`
+`isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"`
+`#ISAM fixpack file`
 isam_fixpack: "SAM/9030_IF2.fixpack"
 #ISAM WGA Activation code file name
 wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"

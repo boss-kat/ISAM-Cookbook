@@ -42,6 +42,7 @@ pip install PyYAML
 ### 5. Create Ansible folder in user's home directory
 mkdir ~/Ansible
 In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
+
 ansible_root_path: "/opt/IBM/Ansible"
 
 ### 6. Download and unzip ibmsecurity from GITHUB

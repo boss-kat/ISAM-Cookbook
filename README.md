@@ -1,12 +1,12 @@
-# IBM Sample Code
+# IBM Mobile multi Factor Authentication Demo Ansible Code
 
-This repository contains a sample Playbook for builing ISAM MMFA Cookbook environment. The playbook was tested with ISAM v9.0.2.1 and ISAM v9.0.3 software.
+This repository contains a sample Playbook for building ISAM MMFA Cookbook environment. This playbook was tested with ISAM v9.0.2.1 and ISAM v9.0.3 software.
 
-For ISAM MMFA Cookbook details please refer to https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/IBM%20Security%20Federated%20Identity%20Manager/page/IBM%20Verify%20Cookbook . 
+For ISAM MMFA Cookbook details please refer to https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/IBM%20Security%20Federated%20Identity%20Manager/page/IBM%20Verify%20Cookbook . This playbook implements cookbook chapters from 1 - 19.
 
-It uses Ansible ISAM Roles, which in turn uses "ibmsecurity" python package.
+This demo uses Ansible ISAM Roles, which in turn uses "ibmsecurity" python package.
 
-## Requirements
+## Demo Requirements
 
 Python v2.7.10 and above is required for this package.
 
@@ -16,8 +16,8 @@ The following Python Packages are required (including their dependencies):
 
 ISAM Roles need to be installed and available.
 
-The playbook is able to create ISAM appliance on the VMWare Fusion platform. For other platforms it is required that appliance will have an ip address defined for their LMI. This may mean that appliances have had their initial setup 
-done with license acceptance.
+This playbook is able to create ISAM appliance on the MAC OS VMWare Fusion platform. 
+For other platforms or virtualization environments it is required that appliance will have an ip address defined for LMI. This may mean that appliances have had their initial setup done with license acceptance.
 
 To eliminate appliance VM creation at the playbook running please comment the "- include: common/create_vm.yaml" line in the mmfademo.yml file.
 
@@ -42,7 +42,7 @@ pip install PyYAML
 ### 5. Create Ansible folder in user's home directory
 mkdir ~/Ansible
 In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
-ansible_root_path: "/tmp/Ansible"
+ansible_root_path: "/opt/IBM/Ansible"
 
 ### 6. Download and unzip ibmsecurity from GITHUB
 cd ~/Ansible
@@ -125,65 +125,135 @@ cd ~/Ansible
 ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 
 
-## Features
 
-### Test Inventory
-The playbook contains a static inventory file describing two appliances in a data center in Boulder. The appliance ip 
-addresses are used to identify them to avoid dependency on DNS or host entries. Passwords are stored in a "vault.yml" - 
-these would ideally be encrypted, but that step has been skipped to allow for demonstration purposes.
+# Get Started on RedHat 7.3.
+Please configure VM with three NICs as per attached mmfa_network_config.pdf file. You can use the following silent installation procedure to create VM https://www.ibm.com/support/knowledgecenter/en/SSPREK_9.0.3/com.ibm.isam.doc/admin/concept/con_virtual_appl_tasks.html.
 
-### Playbooks
+### 1. Create ansible user
+useradd -g root ansible
+passwd ansible
+cd /home
+mkdir ansible
+chown ansible ansible
 
-#### Install Firmware
-This playbook can be used as is to install firmware packages into appliances. It will work out--of-box. Use like so:
+### 2. Install Extra Packages for Enterprise Linux
+Ansible is not available in the default RHEL repositories, so we need to install Extra Packages for Enterprise Linux (EPEL) in order to install it via yum. 
 
-`ansible-playbook -i inventories/test install_firmware.yml -e "install_firmware_file=/home/python/isam_9.0.2.1_20170116-1957.pkg install_firmware_version=9.0.2.1 install_firmware_release_date=2017-01-16"`
+Download epel-release-latest-7.noarch.rpm
+curl -L https://archive.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -o epel-release-latest-7.noarch.rpm
 
-#### Install Fixpack
-This playbook can be used as is to install fixpacks into appliances. It will work out--of-box. Use like so:
+Install epel-release-latest-7.noarch.rpm
+rpm -ivh epel-release-latest-7.noarch.rpm
 
-`ansible-playbook -i inventories/test install_firmware.yml -e "install_fixpack_file='/home/python/9021_IF1.fixpack'"`
+### 3. Update RedHat
+yum update
 
-#### Execute PDAdmin commands
-This playbook can be used as is to execute PDAdmin commands provided in a file against appliances. It will work out--of-box.
+### 4. Install Ansible and python-jmespath
+yum install ansible
+yum install python-jmespath
 
-`ansible-playbook -i inventories/test pdadmin.yml -e "pdadmin_file='/home/python/test.pdadmin'"`
+### 5. Create Ansible project folder
+su - ansible
+mkdir Ansible
+In case you need to place the project into different folder on, it is required to update the following parameter in the playbook:
+ansible_root_path: "/opt/IBM/Ansible"
 
-You may want to use the `--limit` command to restrict the execution of the PDAdmin commands against more than one appliance.
-The playbook excludes appliances that are part of `restricted` group.
+### 6. Download and unzip ibmsecurity from GITHUB
+cd ~/Ansible
+curl -L https://github.com/IBM-Security/ibmsecurity/archive/master.zip | tar xz
 
-#### Compare
-This playbook will take appliances provided in the current inventory and run compares against a "master" appliance. This
-master can be in the same inventory or not. The playbook can be customized to limit the features compared. By default it
-will try to compare all features found on the master appliance. Look at the default/main.yml of `execute_compare` role for 
-values that can be overridden. This will work out-of-box. Use like so:
+### 7. Install ibmsecurity python package
+cd ~/Ansible/ibmsecurity-master
+python setup.py install
 
-`ansible-playbook -i inventories/test compare.yml --limit 192.168.198.145 -e "master_hostname=192.168.198.153"`
+### 8. Install ansible roles
+ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible
 
-It will prompt for the password for `admin` account of the master appliance.
+### 9. Download and extract MMFA Cookbook ansible project to a temp folder.
+cd /tmp
+curl -L https://github.com/boss-kat/ISAM-Cookbook/archive/master.zip | tar xz
 
-#### Change Passwords
-Appliances come with certain userids that may need to be changed from default. These are:
-admin - root user to login to appliance
-cn=root,SecAuthority=Default - root user for Embedded LDAP
-easuser - BA User (created when mga or federation modules are activated)
-sec_master - Assigned when web runtime (policy server) is configured
+### 10. Move the project to ~/Ansible 
+cd /tmp/ISAM-Cookbook-master
+mv * ~/Ansible
 
-This playbook provides guidance on how these passwords can be changed. This can be done either one time or ever so often
-as dictated by corporate policy.
+### 11. Update Ansible/ansible.cfg only if Ansible project was NOT installed into user's home directory
+[defaults]
+#If Ansible folder is NOT under user's home directory specify full path to role_path folder
+roles_path				= ~/Ansible/isam-ansible-roles
+#roles_path				= /opt/IBM/Ansible/isam-ansible-roles
+#If Ansible folder is NOT under user's home directory specify full path to retry_files_save_path folder
+retry_files_save_path 	= ~/Ansible/Playbooks/retry
+#retry_files_save_path 	= /opt/IBM/Ansible/Playbooks/retry
 
-#### Revert
-In case there is a need to revert appliances back to an original state - in the absence of snapshots or the snapshot cannot
-be used because of a mis-match of firmware levels - then use this playbook to deactivate the activated modules. Other
-configuration to base features may still need to be undone. Use like so:
+### 12. Configure ansible root path in <environment>/group_vars/all/vars.yml only if Ansible root folder not in the user's home directory
+#Ansible root path
+#If Ansible folder is NOT under user's home directory specify full path to Ansible folder
+#ansible_root_path: "/opt/IBM/Ansible/"
+ansible_root_path: "{{ lookup('env','HOME') }}/Ansible"
 
-`ansible-playbook -i inventories/test revert.yml`
+### 13. Update network subnet with actual subnect IPs in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
+#Subnet configuration
+ipv4_1_1_ip_net: 172.16.163
+ipv4_1_2_ip_net: 172.16.222
+ipv4_1_3_ip_net: 192.168.0
 
-#### Site
-This is the standard playbook to be used to build out an environment. Use this as a template to describe and build 
-your environment.
+### 14. Update host entries configuration according to your network config in ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml
+appl_hostnames:
+ - addr: "{{ipv4_1_1_ip_net}}.103"
+   hostnames:
+    - {name: isam.mmfa.ibm.com}
+ - addr: "{{ipv4_1_1_ip_net}}.104"
+   hostnames:
+    - {name: www.mmfa.ibm.com} 
+ - addr: "{{ipv4_1_3_ip_net}}.150"
+   hostnames:
+    - {name: mobile.mmfa.ibm.com} 
+ - addr: "{{ipv4_1_2_ip_net}}.103"
+   hostnames:
+    - {name: aac.mmfa.ibm.com}
 
-`ansible-playbook -i inventories/test site.yml`
+### 15. Update /etc/hosts file on the RedHat host with demo host IPs
+sudo vi /etc/hosts
+#MMFA Demo Hosts
+172.16.163.103  isam.mmfa.ibm.com
+172.16.163.104  www.mmfa.ibm.com
+192.168.0.150   mobile.mmfa.ibm.com
+172.16.222.103  aac.mmfa.ibm.com
+
+### 16. Download ISAM iso file, ISAM fixpack, Base activation code and AAC activation code from Passport Advantage into ~/Ansible/Products/SAM directory. The file names for the downloaded software can be updated in the ~/Ansible/Playbooks/inventories/mmfademo/group_vars/all/vars.yml config:
+#ISAM ISO file
+isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
+#ISAM fixpack file
+isam_fixpack: "SAM/9030_IF2.fixpack"
+#ISAM WGA Activation code file name
+wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
+#ISAM Advanced Access Activation code file name
+aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
+
+NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
+#isam_fixpack: "SAM/9030_IF2.fixpack"
+
+### 17. Run the playbook with the following command:
+cd ~/Ansible
+ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
+
+
+# MMFA Demo access and scenarios
+
+### 1. Access the MMFA Device configuration page 
+https://www.mmfa.ibm.com/mga/sps/mmfa/user/mgmt/html/mmfa/usc/manage.html
+
+At this page you can add your iOS or Android smartphone as a mobile device. You can also use U2F keys with this demo. 
+
+### 2. Access context based authorization page 
+https://www.mmfa.ibm.com/app/mobile-demo/payload/
+
+The transfer amount less than 1000$ does not require mobile approval. 1000$+ amounts requires mobile approval.
+
+For the demo scenarios please refer to MMFA Cookbook. 
+
+
 
 # License
 

@@ -26,9 +26,9 @@ If you have a Docker environment you may also download the isam-ansible docker i
 This demo environment is using three (3) NICs. One NAT interface for LMI with subnet 172.16.163.0, one NAT interface for AAC runtime with subnet 172.16.222.0 and one bridged interface for the external access with 192.168.0.0. You will need configure three NICs on your virtual environment and update subnet configuration accodring to your subnet IPs. For virtual network configuration details please refer to attached mmfa_network_config.pdf file.
 
 ## Get Started on MAC OS with VMWare Fusion.
-###1. Install xcode from AppStore
+### 1. Install xcode from AppStore
 
-###2. Install Xcode command line tools
+### 2. Install Xcode command line tools
 xcode-select --install
 
 ###3. Install ansible
@@ -120,7 +120,7 @@ aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 NOTE: You can decrease deployment time by not installing the fixpack. Just comment the following line:
 #isam_fixpack: "SAM/9030_IF2.fixpack"
 
-14. Run the playbook with the following commands:
+14. Run the playbook with the following command:
 cd ~/Ansible
 ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 

@@ -67,7 +67,9 @@ python setup.py install
 ```
 
 ### 8. Install ansible roles
-`ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible`
+```
+ansible-galaxy install git+https://github.com/ibm-security/isam-ansible-roles.git --roles-path ~/Ansible
+```
 
 ### 9. Download and extract MMFA Cookbook ansible project to a temp folder.
 ```
@@ -87,6 +89,7 @@ mv * ~/Ansible
 #If Ansible folder is NOT under user's home directory specify full path to role_path folder
 roles_path				= ~/Ansible/isam-ansible-roles
 #roles_path				= /opt/IBM/Ansible/isam-ansible-roles
+
 #If Ansible folder is NOT under user's home directory specify full path to retry_files_save_path folder
 retry_files_save_path 	= ~/Ansible/Playbooks/retry
 #retry_files_save_path 	= /opt/IBM/Ansible/Playbooks/retry
@@ -140,10 +143,13 @@ sudo vi /etc/hosts
 ```
 #ISAM ISO file
 isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
+
 #ISAM fixpack file
 isam_fixpack: "SAM/9030_IF2.fixpack"
+
 #ISAM WGA Activation code file name
 wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
+
 #ISAM Advanced Access Activation code file name
 aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 ```
@@ -167,6 +173,7 @@ Please configure VM with three NICs as per attached mmfa_network_config.pdf file
 ```
 useradd -g root ansible
 passwd ansible
+
 cd /home
 mkdir ansible
 chown ansible ansible
@@ -186,7 +193,9 @@ rpm -ivh epel-release-latest-7.noarch.rpm
 ```
 
 ### 3. Update RedHat
-`yum update`
+```
+yum update
+```
 
 ### 4. Install Ansible and python-jmespath
 ```
@@ -239,6 +248,7 @@ mv * ~/Ansible
 #If Ansible folder is NOT under user's home directory specify full path to role_path folder
 roles_path				= ~/Ansible/isam-ansible-roles
 #roles_path				= /opt/IBM/Ansible/isam-ansible-roles
+
 #If Ansible folder is NOT under user's home directory specify full path to retry_files_save_path folder
 retry_files_save_path 	= ~/Ansible/Playbooks/retry
 #retry_files_save_path 	= /opt/IBM/Ansible/Playbooks/retry
@@ -292,10 +302,13 @@ sudo vi /etc/hosts
 ```
 #ISAM ISO file
 isam_iso: "SAM/SAM_9030_BASE_VA_ISO_ML.iso"
+
 #ISAM fixpack file
 isam_fixpack: "SAM/9030_IF2.fixpack"
+
 #ISAM WGA Activation code file name
 wga_activation_file: "SAM/SAM_9030_ACT_ML.txt"
+
 #ISAM Advanced Access Activation code file name
 aac_activation_file: "SAM/SAM_9030_ADV_ACC_CTL_ACT_ML.txt"
 ```
@@ -322,16 +335,13 @@ ansible-playbook -i Playbooks/inventories/mmfademo Playbooks/mmfademo.yml
 ```
 https://www.mmfa.ibm.com/mga/sps/mmfa/user/mgmt/html/mmfa/usc/manage.html
 ```
-
-At this page you can add your iOS or Android smartphone as a mobile device. You can also use U2F keys with this demo. 
+At this page you can add your iOS or Android smartphone as a mobile device for multi factor authentication. You can also use U2F keys with this demo. 
 
 ### 2. Access context based authorization page 
 ```
 https://www.mmfa.ibm.com/app/mobile-demo/payload/
 ```
-
 The transfer amount less than 1000$ does not require mobile approval. 1000$+ amounts requires mobile approval.
-
 For the demo scenarios please refer to MMFA Cookbook. 
 
 

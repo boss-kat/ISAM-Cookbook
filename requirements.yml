@@ -1,4 +1,4 @@
 ---
 - src: https://github.com/boss-kat/isam-ansible-roles.git
-  path: Playbooks/common/roles
+  path: roles
   

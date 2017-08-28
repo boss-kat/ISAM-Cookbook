@@ -1,4 +1,4 @@
 ---
-- src: https://github.com/boss-kat/isam-ansible-roles.git
+- src: https://github.com/boss-kat/pps-security-ansible-roles.git
   path: roles
   

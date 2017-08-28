@@ -1,0 +1,629 @@
+---
+# Build out MMFA Demo environment
+
+# It is assumed that appliance is already created with LMI IP
+
+- name: Include project variables
+  hosts: all
+  tasks:
+   - name: Include variables from inventories/mmfademo directory
+     include_vars:
+      dir: 'inventories/mmfademo'
+      ignore_files: 'hosts'
+      extensions:
+        - yml
+
+# Initial appliance configuration 
+- include: common/initialize_appliance.yaml
+
+- name: Configure Local Runtime
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: config_policyserver
+      tags: ["policyserver", "config"]
+      config_policyserver_admin_pwd               : "{{ sec_master_pwd }}"
+      config_policyserver_ldap_pwd                : "{{ ldap_pwd }}"
+      config_policyserver_ssl_compliance          : "{{ policyserver_ssl_compliance }}"
+
+- name: Update easuser password
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_ldap_user_pw
+      tags: ["ldap", "user", "password"]
+      set_ldap_user_pwd_id                        : "easuser"
+      set_ldap_user_pwd_password                  : "{{ vault_easuser_password }}"
+
+- name: Import MMFA Certificate
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: import_personal_cert
+      tags: ["personal", "certificate", "import"]
+      import_personal_cert_kdb_id                 : "pdsrv"
+      import_personal_cert_label                  : "{{webseal_web_host_name}}"
+      import_personal_cert_cert                   : "{{ repository_folder }}/{{ appliance_name }}/{{ cert_filename }}"
+      import_personal_cert_password               : "{{ vault_cert_password }}"
+    - role: import_personal_cert
+      tags: ["personal", "certificate", "import"]
+      import_personal_cert_kdb_id                 : "pdsrv"
+      import_personal_cert_label                  : "{{webseal_mobile_web_host_name}}"
+      import_personal_cert_cert                   : "{{ repository_folder }}/{{ appliance_name }}/{{ mobile_cert_filename }}"
+      import_personal_cert_password               : "{{ vault_cert_password }}"
+
+- name: Configure AAC Runtime Endpoints 
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: get_all_aac_endpoints
+      tags: ["aac", "endpoint", "get"]
+    - role: delete_aac_endpoints
+      tags: ["aac", "endpoint", "delete"]
+      endpoints_to_delete: "{{endpoints}}"
+    - role: get_aac_interface_uuid
+      interface_label: "1.2"
+      ip_address: "{{ipv4_1_2_ip_address}}"
+    - role: add_runtime_endpoint
+      add_runtime_endpoint_endpoint: "{{uuidIP}}"
+      add_runtime_endpoint_port: 80
+      add_runtime_endpoint_secure: False
+    - role: add_runtime_endpoint
+      add_runtime_endpoint_endpoint: "{{uuidIP}}"
+      add_runtime_endpoint_port: 443
+      add_runtime_endpoint_secure: True
+
+- name: Load Runtime SSL Certificate
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: load_signer_cert
+      tags: ["signer", "certificate", "load"]
+      load_signer_cert_kdb_id                     : "pdsrv"
+      load_signer_cert_label                      : "runtime"
+      load_signer_cert_server                     : "{{aac_web_host_name}}"
+      load_signer_cert_port                       : "443"
+
+- name: Configure Default WebSeal instance
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: create_reverseproxy
+      tags: ["reverseproxy", "create"]
+      create_reverseproxy_inst_name               : "{{ webseal_inst_name }}"
+      create_reverseproxy_host                    : "{{ appliance_name }}"
+      create_reverseproxy_listening_port          : "{{ webseal_inst_port }}"
+      create_reverseproxy_domain                  : "{{ isam_domain }}"
+      create_reverseproxy_admin_id                : "{{ sec_master_id }}"
+      create_reverseproxy_admin_pwd               : "{{ sec_master_pwd }}"
+      create_reverseproxy_ssl_yn                  : "{{ webseal_inst_ssl_yn }}"
+      create_reverseproxy_http_yn                 : "{{ webseal_inst_http_yn }}"
+      create_reverseproxy_http_port               : "{{ webseal_inst_http_port }}"
+      create_reverseproxy_https_yn                : "{{ webseal_inst_https_yn }}"
+      create_reverseproxy_https_port              : "{{ webseal_inst_https_port }}"
+      create_reverseproxy_nw_interface_yn         : "{{ webseal_nw_interface_yn }}"
+      create_reverseproxy_ip_address              : "{{ webseal_inst_ip }}"
+    - role: update_reverseproxy_conf
+      tags: ["webseal" , "reverseproxy", "config"]
+      update_reverseproxy_conf_reverseproxy_id    : "{{ webseal_inst_name }}"
+      update_reverseproxy_conf_entries            : "{{ webseal_web_inst_conf_entries }}"
+    - role: set_reverseproxy_conf
+      tags: ["webseal" , "reverseproxy", "config"]
+      set_reverseproxy_conf_reverseproxy_id       : "{{ webseal_inst_name }}"
+      set_reverseproxy_conf_entries               : 
+           - stanza_id: "authentication-levels"
+             entries:   [["level", "unauthenticated"],["level", "ext-auth-interface"],["level", "password"]]
+           - stanza_id: "eai-trigger-urls"
+             entries:   [["trigger", "/mga/sps/oauth/oauth20/session*"],["trigger", "/mga/sps/auth*"],["trigger", "/mga/sps/authservice/authentication*"],["trigger", "/mga/sps/authsvc*"],["trigger", "/mga/sps/apiauthsvc*"]]
+           - stanza_id: "filter-content-types"
+             entries:   [["type","text/html"],["type",text/vnd.wap.wml],["type","application/scim+json"]]
+
+- name: Configure Mobile WebSeal instance
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: create_reverseproxy
+      tags: ["reverseproxy", "create"]
+      create_reverseproxy_inst_name               : "{{ webseal_mobile_inst_name }}"
+      create_reverseproxy_host                    : "{{ appliance_name }}"
+      create_reverseproxy_listening_port          : "{{ webseal_mobile_inst_port }}"
+      create_reverseproxy_domain                  : "{{ isam_domain }}"
+      create_reverseproxy_admin_id                : "{{ sec_master_id }}"
+      create_reverseproxy_admin_pwd               : "{{ sec_master_pwd }}"
+      create_reverseproxy_ssl_yn                  : "{{ webseal_mobile_inst_ssl_yn }}"
+      create_reverseproxy_http_yn                 : "{{ webseal_mobile_inst_http_yn }}"
+      create_reverseproxy_http_port               : "{{ webseal_mobile_inst_http_port }}"
+      create_reverseproxy_https_yn                : "{{ webseal_mobile_inst_https_yn }}"
+      create_reverseproxy_https_port              : "{{ webseal_mobile_inst_https_port }}"
+      create_reverseproxy_nw_interface_yn         : "{{ webseal_mobile_nw_interface_yn }}"
+      create_reverseproxy_ip_address              : "{{ webseal_mobile_inst_ip }}"
+    - role: update_reverseproxy_conf
+      tags: ["webseal" , "reverseproxy", "config"]
+      update_reverseproxy_conf_reverseproxy_id    : "{{ webseal_mobile_inst_name }}"
+      update_reverseproxy_conf_entries            : "{{ webseal_mobile_inst_conf_entries }}"
+    - role: set_reverseproxy_conf
+      tags: ["webseal" , "reverseproxy", "config"]
+      set_reverseproxy_conf_reverseproxy_id    : "{{ webseal_mobile_inst_name }}"
+      set_reverseproxy_conf_entries            : 
+           - stanza_id: "authentication-levels"
+             entries:   [["level", "unauthenticated"],["level", "ext-auth-interface"]]
+           - stanza_id: "server"
+             entries:   [["follow-redirects-for", "GET /mga/sps/apiauthsvc*"],["follow-redirects-for", "PUT /mga/sps/apiauthsvc*"]]
+           - stanza_id: "filter-content-types"
+             entries:   [["type","text/html"],["type",text/vnd.wap.wml],["type","application/scim+json"]]
+           - stanza_id: "eai-trigger-urls"
+             entries:   [["trigger", "/mga/sps/oauth/oauth20/session*"],["trigger", "/mga/sps/auth*"],["trigger", "/mga/sps/authservice/authentication*"],["trigger", "/mga/sps/authsvc*"],["trigger", "/mga/sps/apiauthsvc*"]]
+          
+- name: Configure Browser Channel /mga Junction
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_junction
+      tags: ["junction", "create"]
+      add_junction_junction_point                 : "/mga"
+      add_junction_junction_type                  : "ssl"
+      add_junction_reverseproxy_id                : "{{ webseal_inst_name }}"
+      add_junction_server_hostname                : "{{aac_web_host_name}}"
+      add_junction_server_port                    : "443"
+      add_junction_remote_http_header             : "all"
+      add_junction_scripting_support              : "yes"
+      add_junction_junction_cookie_javascript_block : "inhead"
+      add_junction_insert_session_cookies         : "yes"
+      add_junction_basic_auth_mode                : "ignore"
+      add_junction_client_ip_http                 : "yes"
+
+- name: Configure Mobile Channel /mga Junction
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_junction
+      tags: ["junction", "create"]
+      add_junction_junction_point                 : "/mga"
+      add_junction_junction_type                  : "ssl"
+      add_junction_reverseproxy_id                : "{{ webseal_mobile_inst_name }}"
+      add_junction_server_hostname                : "{{aac_web_host_name}}"
+      add_junction_server_port                    : "443"
+      add_junction_remote_http_header             : "all"
+      add_junction_scripting_support              : "yes"
+      add_junction_junction_cookie_javascript_block : "inhead"
+      add_junction_insert_session_cookies         : "yes"
+      add_junction_basic_auth_mode                : "ignore"
+      add_junction_client_ip_http                 : "yes"
+
+- name: Configure Security for MMFA
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: execute_pdadmin
+      tags: ["pdamin" , "aac", "acl"]
+      execute_pdadmin_isamuser                    : "{{ sec_master_id }}"
+      execute_pdadmin_isampwd                     : "{{ sec_master_pwd }}"
+      execute_pdadmin_domain                      : "{{ isam_domain }}"
+      execute_pdadmin_commands                    : "{{ pdadmin_security_mmfa }}"
+
+- name: Add LDAP Server Connection to Embedded LDAP
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_ldap_server_connection
+      add_ldapserver_connection_name: "localldap"
+      add_ldapserver_connection_description: "Embedded LDAP Connection"
+      add_ldapserver_connection_locked: False
+      add_ldapserver_connection_connection: "{{ ldap_connection_config }}"
+      add_ldapserver_connection_connectionManager: '{"connectTimeout": "30"}'
+      add_ldapserver_connection_servers: null
+
+- name: Configure SCIM Server
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: config_mmfa_scim
+      mmfa_scim_ldap_connection: "localldap"
+      mmfa_scim_user_suffix: "dc=iswga"
+      mmfa_scim_search_suffix: "dc=iswga"
+      mmfa_scim_isam_domain: "Default"
+      mmfa_scim_update_native_users: true
+
+- name: Configure Browser Channel SCIM Junction
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_junction
+      tags: ["junction", "create"]
+      add_junction_junction_point                 : "/scim"
+      add_junction_junction_type                  : "ssl"
+      add_junction_reverseproxy_id                : "{{ webseal_inst_name }}"
+      add_junction_server_hostname                : "{{aac_web_host_name}}"
+      add_junction_transparent_path_junction      : "yes"
+      add_junction_server_port                    : "443"
+      add_junction_enable_basic_auth              : "yes"
+      add_junction_username                       : "easuser"
+      add_junction_password                       : "{{ vault_easuser_password }}"
+      add_junction_remote_http_header             : "all"
+
+- name: Configure Mobile Channel SCIM Junction
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_junction
+      tags: ["junction", "create"]
+      add_junction_junction_point                 : "/scim"
+      add_junction_junction_type                  : "ssl"
+      add_junction_reverseproxy_id                : "{{ webseal_mobile_inst_name }}"
+      add_junction_server_hostname                : "{{aac_web_host_name}}"
+      add_junction_transparent_path_junction      : "yes"
+      add_junction_server_port                    : "443"
+      add_junction_enable_basic_auth              : "yes"
+      add_junction_username                       : "easuser"
+      add_junction_password                       : "{{ vault_easuser_password }}"
+      add_junction_remote_http_header             : "all"
+
+- name: Enable Modify and Delete via Reverse Proxy
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: execute_pdadmin
+      tags: ["pdamin" , "aac", "acl"]
+      execute_pdadmin_isamuser                    :  "{{ sec_master_id }}"
+      execute_pdadmin_isampwd                     : "{{ sec_master_pwd }}"
+      execute_pdadmin_domain                      : "{{ isam_domain }}"
+      execute_pdadmin_commands                    :
+        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_mobile_inst_name}}/scim isam_mobile_rest"
+        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/scim isam_mobile_rest"
+        - "group create adminGroup cn=adminGroup,dc=iswga adminGroup"
+        - "user create scimadmin cn=scimadmin,dc=iswga scimadmin scimadmin {{vault_scimadmin_password}}"
+        - "user modify scimadmin account-valid yes"
+        - "group modify adminGroup add scimadmin"
+        - "user create testuser cn=testuser,dc=iswga testuser testuser Passw0rd"
+        - "user modify testuser account-valid yes"
+
+- name: Enable SCIM Demo Application
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_advanced_tunning_parameter
+      tags: ["scim", "demo"]
+      set_advanced_tunning_parameter_key: "scim_demo_enabled"
+      set_advanced_tunning_parameter_value: true
+      set_advanced_tunning_parameter_comment: "Enable SCIM Demo"
+
+- name: Configure API Protection Definition
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_oauth_definition
+      tags: ["oauth", "definition"]
+      add_oauth_definition_name                                        : "Authenticator"
+      add_oauth_definition_description                                 : "MMFA Authenticator"
+      add_oauth_definition_grantTypes                                  : ["AUTHORIZATION_CODE"]
+      add_oauth_definition_tcmBehavior                                 : "NEVER_PROMPT"
+      add_oauth_definition_accessTokenLifetime                         : 3600
+      add_oauth_definition_accessTokenLength                           : 20
+      add_oauth_definition_enforceSingleUseAuthorizationGrant          : True
+      add_oauth_definition_authorizationCodeLifetime                   : 300
+      add_oauth_definition_authorizationCodeLength                     : 30
+      add_oauth_definition_issueRefreshToken                           : True
+      add_oauth_definition_refreshTokenLength                          : 40
+      add_oauth_definition_maxAuthorizationGrantLifetime               : 604800
+      add_oauth_definition_enforceSingleAccessTokenPerGrant            : True
+      add_oauth_definition_enableMultipleRefreshTokensForFaultTolerance: False
+      add_oauth_definition_pinPolicyEnabled                            : False
+      add_oauth_definition_pinLength                                   : 4
+      add_oauth_definition_tokenCharSet                                : "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+- name: Create OAUTH Client
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: add_oauth_client
+      tags: ["oauth", "client"]
+      add_oauth_client_clientId: "{{oauth_client_clientId}}"
+      add_oauth_client_name: "Authenticator Client"
+      add_oauth_client_definitionName: "Authenticator"
+      add_oauth_client_companyName: "IBM"
+      add_oauth_client_redirectUri: "https://{{webseal_web_host_name}}/mga/sps/mmfa/user/mgmt/html/mmfa/qr_code.html?client_id={{oauth_client_clientId}}"
+      add_oauth_client_companyUrl: null
+      add_oauth_client_contactPerson: null
+      add_oauth_client_contactType: "ADMINISTRATIVE"
+      add_oauth_client_email: null
+      add_oauth_client_phone: null
+      add_oauth_client_otherInfo: null
+      add_oauth_client_clientSecret: null
+
+- name: Configure MMFA Endpoints
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_mmfa_configuration
+      tags: ["mmfa", "configuration"]
+      set_mmfa_configuration_client_id: "{{oauth_client_clientId}}"
+      set_mmfa_configuration_options: "ignoreSslCerts=true,bgColor=blue"
+      set_mmfa_configuration_endpoints: "{{mmfa_endpoints}}"
+      set_mmfa_configuration_discovery_mechanisms: "{{mmfa_discovery_mechanisms}}"
+
+- name: Create MMFA Initiate Authentication Policy
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_auth_policy
+      tags: ["mmfa", "policy", "initiate"]
+      set_auth_policy_name: "MMFA Initiate Login Policy"
+      set_auth_policy_policy_file: "{{ repository_folder }}/{{ appliance_name }}/{{ mmfa_initiate_login_policy_file }}"
+      set_auth_policy_description: "IBM MMFA Login Policy"
+      set_auth_policy_uri: "urn:ibm:security:authentication:asf:mmfa_initiate_simple_login"
+      set_auth_policy_enabled: True
+
+- name: Create MMFA Response Authentication Policy
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_auth_policy
+      tags: ["mmfa", "policy", "initiate"]
+      set_auth_policy_name: "MMFA User Presence Response"
+      set_auth_policy_policy_file: "{{ repository_folder }}/{{ appliance_name }}/{{ mmfa_user_response_policy_file }}"
+      set_auth_policy_description: "IBM MMFA User Presence Challenge Response"
+      set_auth_policy_uri: "urn:ibm:security:authentication:asf:mmfa_response_userpresence"
+      set_auth_policy_enabled: True
+
+- name: Create AAC Metadata directory
+  hosts: mmfa
+  connection: local   
+  roles:
+    - role: import_aac_template_zip
+      tags: ["aac" , "zip", "import"]
+      import_aac_template_zip_filename: "{{ repository_folder }}/{{ appliance_name }}/{{ template_zip_filename }}"
+      force: True
+    - role: create_aac_template_dir
+      tags: ["aac" , "directory", "create"]
+      create_aac_template_dir_path: 'C/mmfa/user/mgmt/mmfa'
+      create_aac_template_dir_name: 'metadata'
+    - role: create_aac_template_dir
+      tags: ["aac" , "directory", "create"]
+      create_aac_template_dir_path: 'C/mmfa/user/mgmt/mmfa/metadata'
+      create_aac_template_dir_name: '{{ oauth_client_clientId }}'
+    - role: import_aac_template_files
+      tags: ["aac" , "file", "import"]
+      import_aac_template_path_name_filename:
+        - {path: "{{metadata_path}}",  name: "{{metadata_name}}",  filename: "{{ repository_folder }}/{{ appliance_name }}/{{ metadata_filename }}"}
+      force: True
+
+- name: Configure ISAM Demo Application
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: update_advanced_configuration
+      tags: ["mmfa" , "application", "advanced", "configuration"]
+      update_advanced_configuration_key           : "live.demos.enabled"
+      update_advanced_configuration_value         : "true"
+      update_advanced_configuration_sensitive     : false
+    - role: update_advanced_configuration
+      tags: ["mmfa" , "application", "advanced", "configuration"]
+      update_advanced_configuration_key           : "riskEngine.reportsEnabled"
+      update_advanced_configuration_value         : "true"
+      update_advanced_configuration_sensitive     : false
+    - role: update_advanced_configuration
+      tags: ["mmfa" , "application", "advanced", "configuration"]
+      update_advanced_configuration_key           : "attributeCollection.enableGetAttributes"
+      update_advanced_configuration_value         : "true"
+      update_advanced_configuration_sensitive     : false
+    - role: execute_pdadmin
+      tags: ["pdamin" , "user", "create"]
+      execute_pdadmin_isamuser                    : "{{ sec_master_id }}"
+      execute_pdadmin_isampwd                     : "{{ sec_master_pwd }}"
+      execute_pdadmin_domain                      : "{{ isam_domain }}"
+      execute_pdadmin_commands :
+        - "user create anonymous cn=anonymous,dc=iswga anonymous anonymous {{ anonymous_password }}"
+        - "user modify anonymous account-valid yes"
+    - role: add_junction
+      tags: ["junction", "create"]
+      add_junction_junction_point                 : "/app"
+      add_junction_junction_type                  : "ssl"
+      add_junction_reverseproxy_id                : "{{ webseal_inst_name }}"
+      add_junction_server_hostname                : "{{aac_web_host_name}}"
+      add_junction_server_port                    : "443"
+      add_junction_remote_http_header             : "all"
+      add_junction_scripting_support              : "yes"
+      add_junction_junction_cookie_javascript_block : "inhead"
+      add_junction_insert_session_cookies         : "yes"
+      add_junction_basic_auth_mode                : "ignore"
+      add_junction_client_ip_http                 : "yes"
+    - role: execute_pdadmin
+      tags: ["pdamin" , "user", "create"]
+      execute_pdadmin_isamuser                    : "{{ sec_master_id }}"
+      execute_pdadmin_isampwd                     : "{{ sec_master_pwd }}"
+      execute_pdadmin_domain                      : "{{ isam_domain }}"
+      execute_pdadmin_commands                    :
+        - "acl attach /WebSEAL/{{ appliance_name }}-{{ webseal_inst_name }}/app/mobile-demo temp-unauth"
+
+- name: Pause for update ACL cache
+  hosts: mmfa
+  connection: local   
+  tasks:
+    - name                                        : Pause for ACL cache update 
+      command                                     : sleep 30
+
+- name: Update ISAM Demo App
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: config_demo_application
+      tags: ["demo" , "application", "config"]
+      config_demo_application_url                 : "https://{{ demo_app_webseal_hostname }}/app/mobile-demo/setting/"
+      config_demo_application_method              : "POST"
+      config_demo_application_body                : "{{ demo_app_config }}"
+      config_demo_return_content                  : "yes"
+      config_demo_application_body_format         : "raw"
+      config_demo_application_username            : null
+      config_demo_application_password            : null
+      config_demo_application_status_code         : 200
+
+- name: Configure Demo Application ACL
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: execute_pdadmin
+      tags: ["pdamin" , "user", "create"]
+      execute_pdadmin_isamuser                    : "{{ sec_master_id }}"
+      execute_pdadmin_isampwd                     : "{{ sec_master_pwd }}"
+      execute_pdadmin_domain                      : "{{ isam_domain }}"
+      execute_pdadmin_commands                    :
+        - "acl attach /WebSEAL/{{ appliance_name }}-{{ webseal_inst_name }}/app/mobile-demo isam_mobile_anyauth"
+        - "object modify /WebSEAL/{{ appliance_name }}-{{ webseal_inst_name }}/app set attribute HTTP-Tag-Value AUTHENTICATION_LEVEL=authentication_level"
+        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/app/mobile-demo/theme isam_mobile_unauth"
+        - "acl attach /WebSEAL/{{appliance_name}}-{{webseal_inst_name}}/app/mobile-demo/oauth/oauth2Client.jsp isam_mobile_unauth"
+
+
+
+- name: Configure Default WebSeal instance for RBAC
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: update_reverseproxy_conf
+      tags: ["webseal" , "reverseproxy", "config"]
+      update_reverseproxy_conf_reverseproxy_id    : "{{ webseal_inst_name }}"
+      update_reverseproxy_conf_entries            : "{{ webseal_inst_conf_entries_rbac }}" 
+
+- name: Upload AAC Infomap Mapping rules
+  hosts: mmfa
+  connection: local   
+  roles:
+    - role: upload_mapping_rule
+      tags: ["mapping", "rule", "upload"]
+      upload_mapping_rule_name                    : "{{stepup_rule_name}}"
+      upload_mapping_rule_category                : "InfoMap"
+      upload_mapping_rule_upload_filename         : "{{repository_folder}}/{{appliance_name}}/javascript/infomap/{{stepup_rule_name}}.js"
+    - role: upload_mapping_rule
+      tags: ["mapping", "rule", "upload"]
+      upload_mapping_rule_name                    : "{{amount_rule_name}}"
+      upload_mapping_rule_category                : "InfoMap"
+      upload_mapping_rule_upload_filename         : "{{repository_folder}}/{{appliance_name}}/javascript/infomap/{{amount_rule_name}}.js"
+    - role: upload_mapping_rule
+      tags: ["mapping", "rule", "upload"]
+      upload_mapping_rule_name                    : "{{assert_rule_name}}"
+      upload_mapping_rule_category                : "InfoMap"
+      upload_mapping_rule_upload_filename         : "{{repository_folder}}/{{appliance_name}}/javascript/infomap/{{assert_rule_name}}.js"
+    - role: upload_mapping_rule
+      tags: ["mapping", "rule", "upload"]
+      upload_mapping_rule_name                    : "{{rememberme_rule_name}}"
+      upload_mapping_rule_category                : "InfoMap"
+      upload_mapping_rule_upload_filename         : "{{repository_folder}}/{{appliance_name}}/javascript/infomap/{{rememberme_rule_name}}.js"
+    - role: upload_mapping_rule
+      tags: ["mapping", "rule", "upload"]
+      upload_mapping_rule_name                    : "{{setauthlvl_rule_name}}"
+      upload_mapping_rule_category                : "InfoMap"
+      upload_mapping_rule_upload_filename         : "{{repository_folder}}/{{appliance_name}}/javascript/infomap/{{setauthlvl_rule_name}}.js"
+    - role: upload_mapping_rule
+      tags: ["mapping", "rule", "upload"]
+      upload_mapping_rule_name                    : "{{verifystepup_rule_name}}"
+      upload_mapping_rule_category                : "InfoMap"
+      upload_mapping_rule_upload_filename         : "{{repository_folder}}/{{appliance_name}}/javascript/infomap/{{verifystepup_rule_name}}.js"
+
+- name: Set AAC transfer Amount Attribute
+  hosts: mmfa
+  connection: local   
+  roles:
+    - role: set_aac_attribute
+      tags: ["aac", "attribute", "set"]
+      set_aac_attribute_name              : "transferAmount"
+      set_aac_attribute_description       : "Transaction amount POST parameter"
+      set_aac_attribute_attributeURI      : "urn:ibm:demo:transferamount"
+      set_aac_attribute_type              : '{"policy":true, "risk":false}'
+      set_aac_attribute_category          : "Environment"
+      set_aac_attribute_datatype          : "Double"
+      set_aac_attribute_predefined        : false
+      set_aac_attribute_issuer            : ""
+      set_aac_attribute_matcher           : "1"
+      set_aac_attribute_storageDomain     : '{"device":false,"session":false,"behavior":false}'
+
+- name: Configure Authentication Context Attributes 
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: update_advanced_configuration
+      tags: ["mmfa" , "application", "advanced", "configuration"]
+      update_advanced_configuration_key           : "attributeCollection.authenticationContextAttributes"
+      update_advanced_configuration_value         : "resource,action,ac.uuid,header:userAgent,transferAmount"
+      update_advanced_configuration_sensitive     : false
+
+- name: Configure Transfer Amount Message Infomap Mechanism
+  hosts: mmfa
+  connection: local   
+  roles:
+    - role: set_auth_mech
+      tags: ["aac" , "authentication", "mechanism", "infomap"]
+      set_auth_mech_name: 'MMFA Demo Transfer Amount Messager'
+      set_auth_mech_description: 'MMFA Information Mapping for Transaction Amount'
+      set_auth_mech_type: 'InfoMapAuthenticationName'
+      set_auth_mech_uri: urn:ibm:security:authentication:asf:mechanism:demotransfer
+      set_auth_mech_attributes: []
+      set_auth_mech_properties:
+         - { key: "infoMap.HTMLPage", value: ""}
+         - { key: "infoMap.JSRule", value: "DemoTransferAmount"}
+      set_auth_mech_predefined: False
+
+- name: Create MMFA Transfer Initiate and Response Authentication Policy
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_auth_policy
+      tags: ["mmfa", "policy", "transfer", "initiate"]
+      set_auth_policy_name: "MMFA Transfer Initiate Policy"
+      set_auth_policy_policy_file: "{{ repository_folder }}/{{ appliance_name }}/{{ mmfa_transfer_initiate_policy_file }}"
+      set_auth_policy_description: "IBM MMFA Banking Transaction Initiate Policy"
+      set_auth_policy_uri: "urn:ibm:security:authentication:asf:mmfa_initiate_transfer"
+      set_auth_policy_enabled: True
+    - role: set_auth_policy
+      tags: ["mmfa", "policy", "transfer", "response"]
+      set_auth_policy_name: "MMFA Transfer Response Policy"
+      set_auth_policy_policy_file: "{{ repository_folder }}/{{ appliance_name }}/{{ mmfa_transfer_response_policy_file }}"
+      set_auth_policy_description: "IBM MMFA Fingerprint Challenge Response"
+      set_auth_policy_uri: "urn:ibm:security:authentication:asf:mmfa_response_fingerprint"
+      set_auth_policy_enabled: True
+
+- name: Create CBA Transfer Initiate Policy
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: set_access_control_policy
+      tags: ["cba", "policy", "transfer", "initiate"]
+      set_access_control_policy_name: "{{ transfer_access_control_policy_name }}"
+      set_access_control_policy_policy_file: "{{ repository_folder }}/{{ appliance_name }}/{{ cba_transfer_initiate_policy_file }}"
+      set_access_control_policy_description: "Trigger MMFA Transaction verification for transaction-amount greater or equal 1000"
+      set_access_control_policy_attributesrequired: False
+      set_access_control_policy_predefined: False
+
+- name: Config CBA Transfer Policy Attachment
+  hosts: mmfa
+  connection: local
+  roles:
+    - role: authenticate_policy_attachments
+      tags: ["cba", "policy", "attachment"]
+      authenticate_policy_attachments_username: "{{ sec_master_id }}"
+      authenticate_policy_attachments_password: "{{ sec_master_pwd }}"
+      authenticate_policy_attachments_domain: "{{ isam_domain }}"
+    - role: config_policy_attachments
+      tags: ["cba", "policy", "attachment"]
+      config_policy_attachments_server: "{{appliance_name}}-{{webseal_inst_name}}"
+      config_policy_attachments_resourceUri: "/app/mobile-demo/payload/result.jsp"
+      config_policy_attachments_policies: 
+                                            - { "name": '{{transfer_access_control_policy_name}}' , "type":"policy" }
+
+
+- name: Configure U2F Authentication Mechanism
+  hosts: mmfa
+  connection: local   
+  roles:
+    - role: set_auth_mech
+      tags: ["aac" , "authentication", "mechanism", "u2f"]
+      set_auth_mech_name: 'FIDO Universal 2nd Factor'
+      set_auth_mech_description: 'FIDO Universal 2nd Factor Token Registration and Authentication'
+      set_auth_mech_type: 'U2FName'
+      set_auth_mech_uri: urn:ibm:security:authentication:asf:mechanism:u2f
+      set_auth_mech_attributes: []
+      set_auth_mech_properties:
+         - { key: "U2F.appId", value: "https://www.mmfa.ibm.com"}
+         - { key: "U2F.attestationSource", value: ""}
+         - { key: "U2F.attestationType", value: "None"}
+         - { key: "U2F.attestationEnforcement", value: "Required"}
+      set_auth_mech_predefined: True
+  

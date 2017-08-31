@@ -92,11 +92,11 @@
   hosts: all
   connection: local   
   tasks:
-    - name                                           : Pause to ensure the LMI is fully functional
+    - name: Pause to ensure the LMI is fully functional
       pause:
         seconds: 10
 
-- name: Pause to ensure the LMI is fully functional
+- name: Get LMI Last Restart Timestamp
   hosts: all
   connection: local   
   tasks:
@@ -127,6 +127,15 @@
   hosts: all
   connection: local   
   tasks:
+    - name: Pause to ensure the LMI is fully functional
+      pause:
+        seconds: 10
+      when: isam_fixpack is defined
+
+- name: Pause to ensure the LMI is fully functional
+  hosts: all
+  connection: local   
+  tasks:
     - name: Wait for LMI to Respond
       isam:
         appliance: "{{inventory_hostname}}"
@@ -142,10 +151,6 @@
       retries: 10
       delay: 60
       ignore_errors: true
-      when: isam_fixpack is defined
-    - name: Pause 10 seconds
-      pause:
-        seconds: 10
       when: isam_fixpack is defined
 
 
